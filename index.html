@@ -1,8 +1,8 @@
- <!DOCTYPE html>
+  <!DOCTYPE html>
   <html lang="en">
   <head>
       <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
       <title>Simple Snake Game</title>
       <style>
           body {
@@ -15,6 +15,7 @@
               color: white;
               font-family: 'Arial', sans-serif;
               flex-direction: column;
+              overflow: hidden;
           }
 
           canvas {
@@ -22,47 +23,58 @@
               box-shadow: 0 0 20px rgba(0,0,0,0.5);
               background-color: #000;
               display: block;
+              max-width: 95vw;
+              max-height: 95vh;
           }
 
           .score-board {
+              position: absolute;
+              top: 10px;
+              left: 50%;
+              transform: translateX(-50%);
               font-size: 24px;
-              margin-bottom: 10px;
+              z-index: 10;
+              background: rgba(0,0,0,0.6);
+              padding: 8px 15px;
+              border-radius: 20px;
+              white-space: nowrap;
           }
 
           .instructions {
-              margin-top: 15px;
-              color: #bdc3c7;
+              display: none; /* Hidden on mobile for better space */
           }
 
           .controls {
               position: absolute;
-              bottom: 30px;
-              right: 30px;
+              bottom: 20px;
+              left: 50%;
+              transform: translateX(-50%);
               display: grid;
-              grid-template-columns: repeat(3, 60px);
-              grid-template-rows: repeat(3, 60px);
-              gap: 10px;
+              grid-template-columns: repeat(3, 70px);
+              grid-template-rows: repeat(3, 70px);
+              gap: 15px;
               z-index: 10;
           }
 
           .btn {
-              width: 60px;
-              height: 60px;
+              width: 70px;
+              height: 70px;
               background: rgba(255, 255, 255, 0.2);
               border: 2px solid rgba(255, 255, 255, 0.4);
-              border-radius: 10px;
+              border-radius: 15px;
               color: white;
-              font-size: 24px;
+              font-size: 30px;
               cursor: pointer;
               display: flex;
               justify-content: center;
               align-items: center;
               user-select: none;
-              transition: background 0.2s;
+              transition: background 0.1s;
+              touch-action: manipulation;
           }
 
           .btn:active {
-              background: rgba(255, 255, 255, 0.4);
+              background: rgba(255, 255, 255, 0.5);
           }
 
           .btn-up { grid-column: 2; grid-row: 1; }
@@ -74,7 +86,7 @@
   <body>
 
       <div class="score-board">Score: <span id="score">0</span></div>
-      <canvas id="snakeGame" width="800" height="800"></canvas>
+      <canvas id="snakeGame"></canvas>
       <div class="instructions">Use Arrow Keys to Move</div>
       <div class="controls">
           <button class="btn btn-up" onclick="setDirection('UP')">↑</button>
@@ -91,6 +103,38 @@
           const box = 20; // Size of one square
           let score = 0;
           let gameSpeed = 100;
+          let cols, rows;
+
+          function resizeCanvas() {
+              // Fit to the smallest dimension of the device, max 700px
+              const targetSize = Math.min(700, window.innerWidth, window.innerHeight);
+              cols = Math.floor(targetSize / box);
+              rows = Math.floor(targetSize / box);
+              canvas.width = cols * box;
+              canvas.height = rows * box;
+
+              // Boundary Correction: ensure snake head is in bounds
+              if (snake && snake.length > 0) {
+                  if (snake[0].x >= canvas.width || snake[0].y >= canvas.height || snake[0].x < 0 || snake[0].y < 0) {
+                      const centerX = Math.floor(cols / 2) * box;
+                      const centerY = Math.floor(rows / 2) * box;
+                      const diffX = centerX - snake[0].x;
+                      const diffY = centerY - snake[0].y;
+                      for (let i = 0; i < snake.length; i++) {
+                          snake[i].x += diffX;
+                          snake[i].y += diffY;
+                      }
+                  }
+              }
+              generateFood();
+          }
+
+          function generateFood() {
+              food = {
+                  x: Math.floor(Math.random() * cols) * box,
+                  y: Math.floor(Math.random() * rows) * box
+              };
+          }
 
           // Sound effect for eating food
           const eatSound = new Audio('allu arjun laugh.mp3.mpeg');
