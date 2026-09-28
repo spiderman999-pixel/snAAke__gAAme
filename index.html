@@ -1,4 +1,4 @@
-  <!DOCTYPE html>
+ <!DOCTYPE html>
   <html lang="en">
   <head>
       <meta charset="UTF-8">
@@ -142,7 +142,10 @@
 
           // Initialize Snake in the middle
           let snake = [];
-          snake[0] = { x: 20 * box, y: 20 * box };
+
+          // Call resizeCanvas first to set cols and rows
+          resizeCanvas();
+          snake[0] = { x: Math.floor(cols / 2) * box, y: Math.floor(rows / 2) * box };
 
           // Initialize Food
           const foodImg = new Image();
